@@ -11,16 +11,14 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  // Responsive scaling logic for mobile view with safety checks
   useEffect(() => {
     const handleResize = () => {
       if (!containerRef.current) return;
-      
       const parent = containerRef.current.parentElement;
-      if (window.innerWidth < 800 && parent) {
+      if (window.innerWidth < 1024 && parent) {
         const parentWidth = parent.offsetWidth;
-        const targetWidth = 794; // approx pixels for 210mm at 96dpi
-        const padding = 32;
+        const targetWidth = 794; 
+        const padding = 20;
         const newScale = (parentWidth - padding) / targetWidth;
         setScale(Math.min(newScale, 1));
       } else {
@@ -29,9 +27,7 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
     };
 
     window.addEventListener('resize', handleResize);
-    // Use a small timeout to ensure DOM is fully painted
     const timer = setTimeout(handleResize, 100);
-    
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timer);
@@ -54,165 +50,128 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
     overflow: 'hidden',
   };
 
-  // Rendering Helper for dotted lines if empty
-  const renderValue = (val: string, placeholder: string) => val || placeholder;
+  const renderValue = (val: any, placeholder: string = '................................') => {
+    return val ? val.toString().toUpperCase() : placeholder;
+  };
 
   return (
     <div className="flex flex-col gap-8 print:gap-0 no-print:max-w-4xl no-print:mx-auto preview-container" ref={containerRef}>
       
-      {/* PAGE 1: SURAT KETERANGAN */}
+      {/* WEB PREVIEW (Hanya muncul di layar) */}
       <div style={wrapperStyle} className="no-print">
         <div style={pageStyle} className="print-page certificate-bg shadow-xl p-8 md:p-12 relative overflow-hidden flex flex-col text-gray-800 border-gray-300 border bg-white">
           <FootprintWatermark />
           
-          {/* Header (Kop Surat) */}
+          {/* Header */}
           <div className="flex items-center border-b-[3px] border-black pb-5 relative z-10">
             <div className="mr-4 md:mr-10 shrink-0">
               <GarutLogo />
             </div>
             <div className="flex-1 text-center">
-              <h1 className="text-xl md:text-2xl font-bold uppercase leading-tight tracking-tight">Pemerintah Kabupaten Garut</h1>
-              <h2 className="text-lg md:text-xl font-bold uppercase tracking-wide">Dinas Kesehatan</h2>
-              <h3 className="text-2xl md:text-3xl font-extrabold uppercase tracking-widest">UPT Puskesmas Cipanas</h3>
+              <h1 className="text-xl md:text-2xl font-bold uppercase leading-tight">Pemerintah Kabupaten Garut</h1>
+              <h2 className="text-lg md:text-xl font-bold uppercase">Dinas Kesehatan</h2>
+              <h3 className="text-2xl md:text-3xl font-extrabold uppercase">UPT Puskesmas Cipanas</h3>
               <p className="text-[10px] md:text-[11px] mt-1 italic font-medium">Jalan Cipanas No. 36 Desa Rancabango Kecamatan Tarogong Kaler Kabupaten Garut</p>
-              <p className="text-[10px] md:text-[11px] font-semibold">Telp. 0895-1726-6700 e-mail: <span className="text-blue-700 underline">pkmcipanas.2016@gmail.com</span> - 44151</p>
+              <p className="text-[10px] md:text-[11px] font-semibold">Telp. 0895-1726-6700 e-mail: pkmcipanas.2016@gmail.com - 44151</p>
             </div>
           </div>
 
-          {/* Title */}
           <div className="mt-6 md:mt-8 text-center relative z-10">
             <h2 className="text-2xl md:text-3xl font-bold underline decoration-2">SURAT KETERANGAN LAHIR</h2>
             <p className="text-lg md:text-xl mt-1 font-medium">No: {data.certificateNo || '___________________'}</p>
           </div>
 
-          {/* Intro */}
           <div className="mt-6 md:mt-10 relative z-10 text-base md:text-lg leading-relaxed">
             <p>Yang bertandatangan di bawah ini, menerangkan bahwa:</p>
             <p className="mt-4">
-              Pada hari ini <span className="font-bold border-b border-black inline-block min-w-[100px] text-center">{data.day || '___________'}</span> 
-              {" "}tanggal <span className="font-bold border-b border-black inline-block min-w-[140px] text-center">{data.date || '________________'}</span> 
-              {" "}Pukul <span className="font-bold border-b border-black inline-block min-w-[60px] text-center">{data.time || '__:__'}</span> telah lahir seorang bayi :
+              Pada hari ini <span className="font-bold border-b border-black px-2">{data.day || '...........'}</span> 
+              {" "}tanggal <span className="font-bold border-b border-black px-4">{data.date || '................'}</span> 
+              {" "}Pukul <span className="font-bold border-b border-black px-2">{data.time || '..:..'}</span> telah lahir seorang bayi :
             </p>
           </div>
 
-          {/* Baby Stats Table */}
           <div className="mt-8 space-y-2 md:space-y-4 relative z-10 text-base md:text-lg">
             <div className="flex items-baseline">
-              <span className="w-32 md:w-44 font-medium">Jenis Kelamin</span>
-              <span className="mr-2 md:mr-4">:</span>
+              <span className="w-32 md:w-44 font-medium">Jenis Kelamin</span><span className="mr-2">:</span>
               <span className="flex-1">
                 <span className={data.gender === Gender.MALE ? 'font-bold underline underline-offset-4' : 'opacity-40'}>Laki–laki</span> / 
                 <span className={data.gender === Gender.FEMALE ? 'font-bold underline underline-offset-4 ml-1' : 'ml-1 opacity-40'}>Perempuan</span>
               </span>
             </div>
             <div className="flex items-baseline">
-              <span className="w-32 md:w-44 font-medium">Jenis Kelahiran</span>
-              <span className="mr-2 md:mr-4">:</span>
-              <span className="flex-1 text-sm md:text-lg">
-                {Object.values(BirthType).map((type, idx) => (
+              <span className="w-32 md:w-44 font-medium">Jenis Kelahiran</span><span className="mr-2">:</span>
+              <span className="flex-1">
+                {Object.values(BirthType).filter(v => v !== '').map((type, idx) => (
                   <span key={type} className={data.birthType === type ? 'font-bold underline underline-offset-4 mr-2' : 'opacity-40 mr-2'}>
-                    {type}{idx < Object.values(BirthType).length - 1 ? '/' : ''}
+                    {type}{idx < Object.values(BirthType).filter(v => v !== '').length - 1 ? '/' : ''}
                   </span>
                 ))}
               </span>
             </div>
             
-            <div className="grid grid-cols-2 gap-x-4 md:gap-x-12">
-              <div className="flex items-baseline">
-                <span className="w-32 md:w-44 font-medium">Anak Ke-</span>
-                <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.birthOrder || '...'}</span>
-              </div>
-              <div className="flex items-baseline">
-                <span className="w-32 md:w-44 font-medium">Usia Gestasi</span>
-                <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.gestationAge || '...'}</span>
-              </div>
+            <div className="grid grid-cols-2">
+              <div className="flex items-baseline"><span className="w-32 md:w-44 font-medium">Anak Ke-</span><span className="mr-2">:</span><span className="font-bold border-b border-black min-w-[50px]">{data.birthOrder || '...'}</span></div>
+              <div className="flex items-baseline"><span className="w-32 md:w-44 font-medium">Usia Gestasi</span><span className="mr-2">:</span><span className="font-bold border-b border-black min-w-[50px]">{data.gestationAge || '...'}</span></div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-4 md:gap-x-12">
-              <div className="flex items-baseline">
-                <span className="w-32 md:w-44 font-medium">Berat Lahir</span>
-                <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.weight || '...'}</span> gram
-              </div>
-              <div className="flex items-baseline">
-                <span className="w-32 md:w-44 font-medium">Lingkar Kepala</span>
-                <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.headCircumference || '...'}</span> cm
-              </div>
+            <div className="grid grid-cols-2">
+              <div className="flex items-baseline"><span className="w-32 md:w-44 font-medium">Berat Lahir</span><span className="mr-2">:</span><span className="font-bold border-b border-black min-w-[50px]">{data.weight || '...'}</span> gram</div>
+              <div className="flex items-baseline"><span className="w-32 md:w-44 font-medium">Lingkar Kepala</span><span className="mr-2">:</span><span className="font-bold border-b border-black min-w-[50px]">{data.headCircumference || '...'}</span> cm</div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-4 md:gap-x-12">
-              <div className="flex items-baseline">
-                <span className="w-32 md:w-44 font-medium">Panjang Badan</span>
-                <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.length || '...'}</span> cm
-              </div>
-              <div className="flex items-baseline">
-                <span className="w-32 md:w-44 font-medium">Lingkar dada</span>
-                <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.chestCircumference || '...'}</span> cm
-              </div>
+            <div className="grid grid-cols-2">
+              <div className="flex items-baseline"><span className="w-32 md:w-44 font-medium">Panjang Badan</span><span className="mr-2">:</span><span className="font-bold border-b border-black min-w-[50px]">{data.length || '...'}</span> cm</div>
+              <div className="flex items-baseline"><span className="w-32 md:w-44 font-medium">Lingkar dada</span><span className="mr-2">:</span><span className="font-bold border-b border-black min-w-[50px]">{data.chestCircumference || '...'}</span> cm</div>
             </div>
           </div>
 
-          <div className="mt-8 md:mt-10 text-center relative z-10 italic text-sm md:text-base leading-snug">
+          <div className="mt-8 md:mt-10 text-center relative z-10 italic">
             <p>di <span className="font-bold not-italic">UPT PUSKESMAS CIPANAS</span></p>
             <p>Alamat: <span className="font-bold not-italic text-red-600 underline">Jalan Cipanas No. 36 Desa Rancabango</span></p>
             <p className="font-bold not-italic text-red-600 underline">Kec. Tarogong Kaler Kab. Garut</p>
             <p className="mt-2 text-red-600">Diberi nama:</p>
           </div>
 
-          {/* Baby Name Box */}
           <div className="mt-2 text-center relative z-10">
-            <div className="border-[2.5px] border-black p-4 md:p-6 bg-white/60 mx-auto min-h-[50px] md:min-h-[70px] flex items-center justify-center font-bold text-xl md:text-2xl uppercase tracking-widest shadow-sm">
-              {data.babyName}
+            <div className="border-[2.5px] border-black p-4 md:p-6 bg-white/60 mx-auto min-h-[50px] flex items-center justify-center font-bold text-xl md:text-2xl uppercase tracking-widest">
+              {data.babyName || '................................'}
             </div>
           </div>
 
-          {/* Parents Data */}
-          <div className="mt-6 md:mt-8 space-y-1 md:space-y-2 relative z-10 text-sm md:text-lg">
+          <div className="mt-6 md:mt-8 space-y-1 relative z-10 text-sm md:text-lg">
             <p className="text-red-600 mb-2">Dari orang Tua</p>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Nama Ibu</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">No. KTP</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Pekerjaan</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Nama Ayah</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">No. KTP</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Pekerjaan</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Alamat</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Nama Ibu</span><span className="mr-2">:</span><span className="flex-1 border-b border-black uppercase font-bold">{renderValue(data.motherName)}</span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black">{renderValue(data.motherKtp)}</span></div>
+            <div className="flex items-baseline mt-2"><span className="w-24 md:w-36 text-red-600">Nama Ayah</span><span className="mr-2">:</span><span className="flex-1 border-b border-black uppercase font-bold">{renderValue(data.fatherName)}</span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black">{renderValue(data.fatherKtp)}</span></div>
+            <div className="flex items-start"><span className="w-24 md:w-36 text-red-600">Alamat</span><span className="mr-2">:</span><span className="flex-1 border-b border-black italic min-h-[2rem] leading-snug">{renderValue(data.address)}</span></div>
           </div>
 
-          {/* FOOTER SIGNATURES - IDENTICAL TO WORD IMAGE */}
-          <div className="mt-auto pt-10 md:pt-16 grid grid-cols-2 gap-4 relative z-10 text-[11px] md:text-[15px] leading-tight">
-            {/* LEFT SIDE: MENGETAHUI */}
-            <div className="flex flex-col pl-4 md:pl-8">
+          <div className="mt-auto pt-10 grid grid-cols-2 relative z-10 text-sm md:text-base leading-tight">
+            <div className="flex flex-col pl-4">
               <p className="text-red-600">Mengetahui,</p>
-              <p className="text-red-600 font-bold uppercase">Kepala UPT Puskesmas Cipanas</p>
-              <div className="h-20 md:h-24"></div>
+              <p className="text-red-600 font-bold">Kepala UPT Puskesmas Cipanas</p>
+              <div className="h-20"></div>
               <p className="font-bold underline decoration-1 underline-offset-4">dr. Arie Andaryani</p>
               <p>NIP. 198301252014122001</p>
             </div>
-            
-            {/* RIGHT SIDE: PENOLONG */}
-            <div className="flex flex-col pl-4 md:pl-12">
-              <p className="text-red-600">Garut, {renderValue(data.signingDate, '................................')}</p>
-              <p className="text-red-600 font-bold uppercase">Penolong</p>
-              <div className="h-20 md:h-24"></div>
-              <p className="font-bold underline decoration-1 underline-offset-4 min-h-[1.2em]">
-                {data.assistantName || '...................................................'}
+            <div className="flex flex-col pl-8">
+              <p className="text-red-600">Garut, {data.signingDate || '....................'}</p>
+              <p className="text-red-600 font-bold">Penolong</p>
+              <div className="h-20"></div>
+              <p className="font-bold underline decoration-1 underline-offset-4">
+                {renderValue(data.assistantName)}
               </p>
-              <p>NIP. {data.assistantNip || '........................................'}</p>
+              <p>NIP. {data.assistantNip || '....................'}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Actual Print Version (A4 Precision) */}
-      <div className="hidden print:flex flex-col">
-          <div className="print-page certificate-bg p-12 relative flex flex-col min-h-[297mm] text-gray-800 border-[1px] border-black/10">
+      {/* PRINT VERSION (Hanya muncul saat print) */}
+      <div className="hidden print:block w-full">
+          <div className="print-page certificate-bg relative">
              <FootprintWatermark />
-             {/* Header */}
              <div className="flex items-center border-b-[4px] border-black pb-5 relative z-10">
                 <GarutLogo />
                 <div className="flex-1 text-center pr-10">
@@ -229,75 +188,73 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
                <p className="text-xl mt-2 font-medium">No: {data.certificateNo || '___________________'}</p>
              </div>
 
-             <div className="mt-12 relative z-10 text-lg leading-relaxed">
+             <div className="mt-12 relative z-10 text-xl leading-relaxed">
                <p>Yang bertandatangan di bawah ini, menerangkan bahwa:</p>
                <p className="mt-4">Pada hari ini <b className="border-b border-black px-4">{data.day || '___________'}</b> tanggal <b className="border-b border-black px-4">{data.date || '________________'}</b> Pukul <b className="border-b border-black px-4">{data.time || '__:__'}</b> telah lahir seorang bayi :</p>
              </div>
 
-             <div className="mt-10 space-y-4 relative z-10 text-lg">
-                <div className="flex items-baseline"><span className="w-48 font-medium">Jenis Kelamin</span><span className="mr-4">:</span><span className="flex-1"><b>{data.gender}</b></span></div>
-                <div className="flex items-baseline"><span className="w-48 font-medium">Jenis Kelahiran</span><span className="mr-4">:</span><span className="flex-1"><b>{data.birthType}</b></span></div>
-                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-48 font-medium">Anak Ke-</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.birthOrder}</b></span></div><div className="flex items-baseline"><span className="w-48 font-medium">Usia Gestasi</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.gestationAge}</b></span></div></div>
-                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-48 font-medium">Berat Lahir</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.weight}</b></span> gram</div><div className="flex items-baseline"><span className="w-48 font-medium">Lingkar Kepala</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.headCircumference}</b></span> cm</div></div>
-                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-48 font-medium">Panjang Badan</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.length}</b></span> cm</div><div className="flex items-baseline"><span className="w-48 font-medium">Lingkar dada</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.chestCircumference}</b></span> cm</div></div>
+             <div className="mt-10 space-y-4 relative z-10 text-xl">
+                <div className="flex items-baseline"><span className="w-56 font-medium">Jenis Kelamin</span><span className="mr-4">:</span><span className="flex-1"><b>{data.gender || '................'}</b></span></div>
+                <div className="flex items-baseline"><span className="w-56 font-medium">Jenis Kelahiran</span><span className="mr-4">:</span><span className="flex-1"><b>{data.birthType || '................'}</b></span></div>
+                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-56 font-medium">Anak Ke-</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.birthOrder || '...'}</b></span></div><div className="flex items-baseline"><span className="w-56 font-medium">Usia Gestasi</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.gestationAge || '...'}</b></span></div></div>
+                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-56 font-medium">Berat Lahir</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.weight || '...'}</b></span> gram</div><div className="flex items-baseline"><span className="w-56 font-medium">Lingkar Kepala</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.headCircumference || '...'}</b></span> cm</div></div>
+                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-56 font-medium">Panjang Badan</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.length || '...'}</b></span> cm</div><div className="flex items-baseline"><span className="w-56 font-medium">Lingkar dada</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.chestCircumference || '...'}</b></span> cm</div></div>
              </div>
 
-             <div className="mt-12 text-center relative z-10 italic">
+             <div className="mt-12 text-center relative z-10 italic text-lg">
                <p>di <span className="font-bold not-italic">UPT PUSKESMAS CIPANAS</span></p>
                <p>Alamat: <span className="font-bold not-italic underline">Jalan Cipanas No. 36 Desa Rancabango</span></p>
                <p className="font-bold not-italic underline">Kec. Tarogong Kaler Kab. Garut</p>
-               <p className="mt-4">Diberi nama:</p>
+               <p className="mt-6">Diberi nama:</p>
              </div>
 
              <div className="mt-4 text-center relative z-10">
-               <div className="border-[3px] border-black p-6 bg-white/20 mx-auto min-h-[80px] flex items-center justify-center font-bold text-3xl uppercase tracking-widest">
-                 {data.babyName}
+               <div className="border-[3px] border-black p-6 bg-white/20 mx-auto min-h-[100px] flex items-center justify-center font-bold text-4xl uppercase tracking-widest">
+                 {data.babyName || '................................'}
                </div>
              </div>
 
-             <div className="mt-10 space-y-3 relative z-10 text-lg">
+             <div className="mt-10 space-y-4 relative z-10 text-xl">
                 <p className="mb-4">Dari orang Tua</p>
-                <div className="flex items-baseline"><span className="w-44">Nama Ibu</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
-                <div className="flex items-baseline"><span className="w-44">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
-                <div className="flex items-baseline mt-4"><span className="w-44">Nama Ayah</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
-                <div className="flex items-baseline"><span className="w-44">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
-                <div className="flex items-start"><span className="w-44">Alamat</span><span className="mr-2">:</span><span className="flex-1 border-b border-black min-h-[3rem] h-12"></span></div>
+                <div className="flex items-baseline"><span className="w-48">Nama Ibu</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8 uppercase font-bold">{renderValue(data.motherName)}</span></div>
+                <div className="flex items-baseline"><span className="w-48">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8">{renderValue(data.motherKtp)}</span></div>
+                <div className="flex items-baseline mt-4"><span className="w-48">Nama Ayah</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8 uppercase font-bold">{renderValue(data.fatherName)}</span></div>
+                <div className="flex items-baseline"><span className="w-48">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8">{renderValue(data.fatherKtp)}</span></div>
+                <div className="flex items-start"><span className="w-48">Alamat</span><span className="mr-2">:</span><span className="flex-1 border-b border-black min-h-[4rem] italic leading-relaxed">{renderValue(data.address)}</span></div>
              </div>
 
-             {/* Print Signatures - High Fidelity */}
              <div className="mt-auto grid grid-cols-2 pt-16 relative z-10 text-xl leading-snug">
                <div className="flex flex-col pl-12">
                  <p>Mengetahui,</p>
                  <p className="font-bold uppercase">Kepala UPT Puskesmas Cipanas</p>
-                 <div className="h-28"></div>
+                 <div className="h-32"></div>
                  <p className="font-bold underline decoration-1 underline-offset-8">dr. Arie Andaryani</p>
                  <p>NIP. 198301252014122001</p>
                </div>
                <div className="flex flex-col pl-12">
-                 <p>Garut, {renderValue(data.signingDate, '................................')}</p>
+                 <p>Garut, {data.signingDate || '................................'}</p>
                  <p className="font-bold uppercase">Penolong</p>
-                 <div className="h-28"></div>
-                 <p className="font-bold underline decoration-1 underline-offset-8 min-h-[1.2em]">
-                   {data.assistantName || '...................................................'}
+                 <div className="h-32"></div>
+                 <p className="font-bold underline decoration-1 underline-offset-8">
+                   {renderValue(data.assistantName)}
                  </p>
                  <p>NIP. {data.assistantNip || '........................................'}</p>
                </div>
              </div>
           </div>
           
-          {/* Page 2: Stempel */}
-          <div className="print-page certificate-bg p-12 relative flex flex-col min-h-[297mm]">
+          <div className="print-page certificate-bg relative">
              <div className="flex flex-col items-center gap-12 mt-12 w-full">
                 <div className="w-full max-w-xl">
-                   <h3 className="text-2xl font-bold border-[3px] border-black p-3 text-center mb-0 bg-gray-50/50 uppercase tracking-widest">STEMPEL KAKI BAYI</h3>
-                   <div className="grid grid-cols-2 border-x-[3px] border-b-[3px] border-black min-h-[400px]">
+                   <h3 className="text-2xl font-bold border-[3px] border-black p-3 text-center mb-0 uppercase tracking-widest">STEMPEL KAKI BAYI</h3>
+                   <div className="grid grid-cols-2 border-x-[3px] border-b-[3px] border-black min-h-[450px]">
                       <div className="border-r-[3px] border-black p-6 flex flex-col items-center"><p className="text-center font-bold underline mb-8">TELAPAK KAKI KIRI BAYI</p></div>
                       <div className="p-6 flex flex-col items-center"><p className="text-center font-bold underline mb-8">TELAPAK KAKI KANAN BAYI</p></div>
                    </div>
                 </div>
                 <div className="w-full max-w-xl mt-16">
-                   <h3 className="text-2xl font-bold border-[3px] border-black p-3 text-center mb-0 bg-gray-50/50 uppercase tracking-widest">STEMPEL TANGAN IBU</h3>
-                   <div className="grid grid-cols-2 border-x-[3px] border-b-[3px] border-black min-h-[350px]">
+                   <h3 className="text-2xl font-bold border-[3px] border-black p-3 text-center mb-0 uppercase tracking-widest">STEMPEL TANGAN IBU</h3>
+                   <div className="grid grid-cols-2 border-x-[3px] border-b-[3px] border-black min-h-[400px]">
                       <div className="border-r-[3px] border-black p-6 flex flex-col items-center"><p className="text-center font-bold underline mb-8">JEMPOL KIRI IBU</p></div>
                       <div className="p-6 flex flex-col items-center"><p className="text-center font-bold underline mb-8">JEMPOL KANAN IBU</p></div>
                    </div>
@@ -307,36 +264,6 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
                 <GarutLogo />
              </div>
           </div>
-      </div>
-
-      {/* PAGE 2 PREVIEW: STEMPEL */}
-      <div style={wrapperStyle} className="no-print mt-8">
-        <div style={pageStyle} className="print-page certificate-bg shadow-xl p-12 relative overflow-hidden flex flex-col text-gray-800 border-gray-300 border bg-white">
-          <div className="flex flex-col items-center gap-12 mt-12 w-full">
-            <div className="w-full max-w-lg">
-              <h3 className="text-2xl font-bold border-2 border-black p-2 text-center mb-0 uppercase tracking-wider">STEMPEL KAKI BAYI</h3>
-              <div className="grid grid-cols-2 border-x-2 border-b-2 border-black min-h-[300px]">
-                <div className="border-r-2 border-black p-4 flex flex-col items-center">
-                  <p className="text-center font-bold underline mb-4">TELAPAK KAKI KIRI</p>
-                </div>
-                <div className="p-4 flex flex-col items-center">
-                  <p className="text-center font-bold underline mb-4">TELAPAK KAKI KANAN</p>
-                </div>
-              </div>
-            </div>
-            <div className="w-full max-w-lg">
-              <h3 className="text-2xl font-bold border-2 border-black p-2 text-center mb-0 uppercase tracking-wider">STEMPEL TANGAN IBU</h3>
-              <div className="grid grid-cols-2 border-x-2 border-b-2 border-black min-h-[250px]">
-                <div className="border-r-2 border-black p-4 flex flex-col items-center">
-                  <p className="text-center font-bold underline mb-4">JEMPOL KIRI IBU</p>
-                </div>
-                <div className="p-4 flex flex-col items-center">
-                  <p className="text-center font-bold underline mb-4">JEMPOL KANAN IBU</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
     </div>
