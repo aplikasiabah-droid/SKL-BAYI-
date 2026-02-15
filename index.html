@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sistem Surat Keterangan Lahir</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --a4-width: 210mm;
+      --a4-height: 297mm;
+    }
+
+    @media print {
+      body { margin: 0; padding: 0; background: white; }
+      .no-print { display: none !important; }
+      .print-page { 
+        width: var(--a4-width); 
+        height: var(--a4-height); 
+        padding: 10mm; 
+        margin: 0;
+        page-break-after: always;
+        background: #fff9f5 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* Custom scrollbar for mobile */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .certificate-bg {
+      background-color: #fff9f5;
+    }
+
+    /* Prevent text selection on non-input preview elements for better mobile feel */
+    .preview-container {
+      user-select: none;
+    }
+    
+    /* Ensure inputs don't zoom on iOS */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-100 font-sans antialiased overflow-x-hidden">
+  <div id="root"></div>
+</body>
+</html>
