@@ -57,12 +57,11 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
   return (
     <div className="flex flex-col gap-8 print:gap-0 no-print:max-w-4xl no-print:mx-auto preview-container" ref={containerRef}>
       
-      {/* WEB PREVIEW (Hanya muncul di layar) */}
+      {/* WEB PREVIEW: Tampilan layar */}
       <div style={wrapperStyle} className="no-print">
         <div style={pageStyle} className="print-page certificate-bg shadow-xl p-8 md:p-12 relative overflow-hidden flex flex-col text-gray-800 border-gray-300 border bg-white">
           <FootprintWatermark />
           
-          {/* Header */}
           <div className="flex items-center border-b-[3px] border-black pb-5 relative z-10">
             <div className="mr-4 md:mr-10 shrink-0">
               <GarutLogo />
@@ -168,7 +167,7 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* PRINT VERSION (Hanya muncul saat print) */}
+      {/* PRINT VERSION: Muncul otomatis saat window.print() */}
       <div className="hidden print:block w-full">
           <div className="print-page certificate-bg relative">
              <FootprintWatermark />

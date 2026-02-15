@@ -165,7 +165,8 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className={`lg:col-span-5 print:w-full ${activeTab === 'preview' ? 'block' : 'hidden lg:block'}`}>
+        {/* print-force-visible memastikan konten cetak muncul meskipun tab preview sedang hidden di UI web */}
+        <div className={`lg:col-span-5 print-force-visible ${activeTab === 'preview' ? 'block' : 'hidden lg:block'}`}>
           <h2 className="hidden lg:flex text-lg font-bold text-gray-800 mb-4 items-center gap-2 no-print">
             <span className="bg-green-600 w-1.5 h-5 rounded-full"></span>
             Pratinjau Hasil
@@ -178,7 +179,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="no-print bg-white border-t p-4 text-center text-gray-400 text-[10px]">
-        <p>&copy; 2024 UPT Puskesmas Cipanas Garut - v3.0 Render Fixed</p>
+        <p>&copy; 2024 UPT Puskesmas Cipanas Garut - v3.1 Deploy & Print Fixed</p>
       </footer>
     </div>
   );

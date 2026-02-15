@@ -4,16 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sistem Surat Keterangan Lahir</title>
+  <title>Sistem Surat Keterangan Lahir - UPT Puskesmas Cipanas</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --a4-width: 210mm;
       --a4-height: 297mm;
     }
 
-    /* Memastikan background muncul saat print */
+    /* Memastikan warna dan background muncul saat print */
     * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
@@ -25,21 +25,27 @@
         margin: 0;
       }
       body { 
-        margin: 0; 
-        padding: 0; 
+        margin: 0 !important; 
+        padding: 0 !important; 
         background: white !important; 
       }
       .no-print { display: none !important; }
       .print-page { 
-        width: var(--a4-width); 
-        height: var(--a4-height); 
-        padding: 15mm; 
-        margin: 0;
-        page-break-after: always;
-        background-color: #fff9f5 !important;
         display: flex !important;
         flex-direction: column !important;
+        width: var(--a4-width) !important; 
+        height: var(--a4-height) !important; 
+        padding: 15mm !important; 
+        margin: 0 !important;
+        page-break-after: always !important;
+        background-color: #fff9f5 !important;
         position: relative !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      /* Memaksa elemen yang tersembunyi di UI web tetap muncul di print */
+      .print-force-visible {
+        display: block !important;
       }
     }
 
@@ -58,10 +64,6 @@
 
     .certificate-bg {
       background-color: #fff9f5;
-    }
-
-    .preview-container {
-      user-select: none;
     }
     
     input, select, textarea {
