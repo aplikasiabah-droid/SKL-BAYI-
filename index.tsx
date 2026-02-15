@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 
 // Error Boundary simplest form for runtime stability
@@ -14,10 +14,10 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-          <h2>Waduh, terjadi kesalahan sistem.</h2>
-          <p>Silakan segarkan halaman (refresh) atau hubungi tim IT.</p>
-          <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', cursor: 'pointer' }}>Segarkan Halaman</button>
+        <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif', color: '#333' }}>
+          <h2>Mohon Maaf, Sistem Sedang Gangguan</h2>
+          <p>Silakan segarkan halaman browser Anda.</p>
+          <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Muat Ulang Halaman</button>
         </div>
       );
     }
@@ -25,14 +25,11 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 }
 
-const renderApp = () => {
+const initApp = () => {
   const rootElement = document.getElementById('root');
-  if (!rootElement) {
-    console.error("Could not find root element to mount to");
-    return;
-  }
+  if (!rootElement) return;
 
-  const root = ReactDOM.createRoot(rootElement);
+  const root = createRoot(rootElement);
   root.render(
     <React.StrictMode>
       <ErrorBoundary>
@@ -42,9 +39,9 @@ const renderApp = () => {
   );
 };
 
-// Ensure DOM is ready before rendering
+// Start initialization
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderApp);
+  document.addEventListener('DOMContentLoaded', initApp);
 } else {
-  renderApp();
+  initApp();
 }

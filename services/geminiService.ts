@@ -1,10 +1,15 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialize to prevent top-level errors if process.env is missing at evaluation time
+const getAIInstance = () => {
+  const apiKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : '';
+  return new GoogleGenAI({ apiKey: apiKey as string });
+};
 
 export async function parseBirthText(text: string) {
   try {
+    const ai = getAIInstance();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Parse data kelahiran berikut ke dalam format JSON sesuai spesifikasi: "${text}"`,
