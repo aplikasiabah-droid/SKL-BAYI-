@@ -13,10 +13,10 @@
       --a4-height: 297mm;
     }
 
-    /* Memastikan warna dan background muncul saat print */
     * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      box-sizing: border-box;
     }
 
     @media print {
@@ -28,24 +28,31 @@
         margin: 0 !important; 
         padding: 0 !important; 
         background: white !important; 
+        width: var(--a4-width);
       }
       .no-print { display: none !important; }
+      
       .print-page { 
         display: flex !important;
         flex-direction: column !important;
         width: var(--a4-width) !important; 
         height: var(--a4-height) !important; 
-        padding: 15mm !important; 
+        padding: 20mm !important; 
         margin: 0 !important;
         page-break-after: always !important;
         background-color: #fff9f5 !important;
         position: relative !important;
         box-shadow: none !important;
         border: none !important;
+        overflow: hidden !important;
       }
-      /* Memaksa elemen yang tersembunyi di UI web tetap muncul di print */
+      
       .print-force-visible {
         display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
       }
     }
 
@@ -68,6 +75,11 @@
     
     input, select, textarea {
       font-size: 16px !important;
+    }
+
+    /* Extra utility for signature placement */
+    .sig-space {
+      height: 80px;
     }
   </style>
 <script type="importmap">
