@@ -43,17 +43,16 @@
         flex-direction: column !important;
         width: var(--a4-width) !important; 
         height: var(--a4-height) !important; 
-        padding: 15mm 18mm !important; /* Margin kertas standar */
+        padding: 10mm 15mm !important; /* Margin disesuaikan agar muat */
         margin: 0 !important;
         page-break-after: always !important;
         background-color: #fff9f5 !important;
         position: relative !important;
         box-shadow: none !important;
         border: none !important;
-        overflow: hidden !important;
+        overflow: visible !important; /* Ubah ke visible agar tidak terpotong */
       }
       
-      /* Halaman terakhir tidak perlu break after */
       .print-page:last-child {
         page-break-after: auto !important;
       }
