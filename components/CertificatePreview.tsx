@@ -11,13 +11,16 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  // Responsive scaling logic for mobile view
+  // Responsive scaling logic for mobile view with safety checks
   useEffect(() => {
     const handleResize = () => {
-      if (containerRef.current && window.innerWidth < 800) {
-        const parentWidth = containerRef.current.parentElement?.offsetWidth || window.innerWidth;
+      if (!containerRef.current) return;
+      
+      const parent = containerRef.current.parentElement;
+      if (window.innerWidth < 800 && parent) {
+        const parentWidth = parent.offsetWidth;
         const targetWidth = 794; // approx pixels for 210mm at 96dpi
-        const padding = 32; // combined horizontal padding
+        const padding = 32;
         const newScale = (parentWidth - padding) / targetWidth;
         setScale(Math.min(newScale, 1));
       } else {
@@ -26,8 +29,13 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // Initial call
-    return () => window.removeEventListener('resize', handleResize);
+    // Use a small timeout to ensure DOM is fully painted
+    const timer = setTimeout(handleResize, 100);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
+    };
   }, []);
 
   const pageStyle = {
@@ -46,10 +54,13 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
     overflow: 'hidden',
   };
 
+  // Rendering Helper for dotted lines if empty
+  const renderValue = (val: string, placeholder: string) => val || placeholder;
+
   return (
     <div className="flex flex-col gap-8 print:gap-0 no-print:max-w-4xl no-print:mx-auto preview-container" ref={containerRef}>
       
-      {/* PAGE 1: SURAT KETERANGAN (WEB PREVIEW) */}
+      {/* PAGE 1: SURAT KETERANGAN */}
       <div style={wrapperStyle} className="no-print">
         <div style={pageStyle} className="print-page certificate-bg shadow-xl p-8 md:p-12 relative overflow-hidden flex flex-col text-gray-800 border-gray-300 border bg-white">
           <FootprintWatermark />
@@ -110,12 +121,12 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
               <div className="flex items-baseline">
                 <span className="w-32 md:w-44 font-medium">Anak Ke-</span>
                 <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.birthOrder}</span>
+                <span className="font-bold border-b border-black min-w-[50px]">{data.birthOrder || '...'}</span>
               </div>
               <div className="flex items-baseline">
                 <span className="w-32 md:w-44 font-medium">Usia Gestasi</span>
                 <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.gestationAge}</span>
+                <span className="font-bold border-b border-black min-w-[50px]">{data.gestationAge || '...'}</span>
               </div>
             </div>
 
@@ -123,12 +134,12 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
               <div className="flex items-baseline">
                 <span className="w-32 md:w-44 font-medium">Berat Lahir</span>
                 <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.weight}</span> gr
+                <span className="font-bold border-b border-black min-w-[50px]">{data.weight || '...'}</span> gram
               </div>
               <div className="flex items-baseline">
                 <span className="w-32 md:w-44 font-medium">Lingkar Kepala</span>
                 <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.headCircumference}</span> cm
+                <span className="font-bold border-b border-black min-w-[50px]">{data.headCircumference || '...'}</span> cm
               </div>
             </div>
 
@@ -136,68 +147,68 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
               <div className="flex items-baseline">
                 <span className="w-32 md:w-44 font-medium">Panjang Badan</span>
                 <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.length}</span> cm
+                <span className="font-bold border-b border-black min-w-[50px]">{data.length || '...'}</span> cm
               </div>
               <div className="flex items-baseline">
                 <span className="w-32 md:w-44 font-medium">Lingkar dada</span>
                 <span className="mr-2 md:mr-4">:</span>
-                <span className="font-bold border-b border-black min-w-[50px]">{data.chestCircumference}</span> cm
+                <span className="font-bold border-b border-black min-w-[50px]">{data.chestCircumference || '...'}</span> cm
               </div>
             </div>
           </div>
 
-          <div className="mt-8 md:mt-12 text-center relative z-10 italic text-sm md:text-base leading-snug">
+          <div className="mt-8 md:mt-10 text-center relative z-10 italic text-sm md:text-base leading-snug">
             <p>di <span className="font-bold not-italic">UPT PUSKESMAS CIPANAS</span></p>
-            <p>Alamat: <span className="font-bold not-italic">Jalan Cipanas No. 36 Desa Rancabango</span></p>
-            <p className="font-bold not-italic">Kec. Tarogong Kaler Kab. Garut</p>
+            <p>Alamat: <span className="font-bold not-italic text-red-600 underline">Jalan Cipanas No. 36 Desa Rancabango</span></p>
+            <p className="font-bold not-italic text-red-600 underline">Kec. Tarogong Kaler Kab. Garut</p>
+            <p className="mt-2 text-red-600">Diberi nama:</p>
           </div>
 
           {/* Baby Name Box */}
-          <div className="mt-6 md:mt-8 text-center relative z-10">
-            <p className="mb-2 text-base md:text-lg">Diberi nama:</p>
-            <div className="border-[2.5px] border-black p-4 md:p-6 bg-white/60 mx-auto min-h-[60px] md:min-h-[80px] flex items-center justify-center font-bold text-xl md:text-3xl uppercase tracking-widest shadow-sm">
+          <div className="mt-2 text-center relative z-10">
+            <div className="border-[2.5px] border-black p-4 md:p-6 bg-white/60 mx-auto min-h-[50px] md:min-h-[70px] flex items-center justify-center font-bold text-xl md:text-2xl uppercase tracking-widest shadow-sm">
               {data.babyName}
             </div>
           </div>
 
           {/* Parents Data */}
-          <div className="mt-8 md:mt-10 space-y-2 md:space-y-3 relative z-10 text-sm md:text-lg">
-            <p className="font-bold underline underline-offset-4 mb-2 md:mb-4 uppercase tracking-wider">Dari orang Tua</p>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 font-medium">Nama Ibu</span><span className="mr-1 md:mr-2">:</span><span className="flex-1 border-b border-black font-bold uppercase">{data.motherName}</span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 font-medium">No. KTP</span><span className="mr-1 md:mr-2">:</span><span className="flex-1 border-b border-black tracking-widest">{data.motherKtp}</span></div>
-            <div className="flex items-baseline mt-3 md:mt-4"><span className="w-24 md:w-36 font-medium">Nama Ayah</span><span className="mr-1 md:mr-2">:</span><span className="flex-1 border-b border-black font-bold uppercase">{data.fatherName}</span></div>
-            <div className="flex items-baseline"><span className="w-24 md:w-36 font-medium">No. KTP</span><span className="mr-1 md:mr-2">:</span><span className="flex-1 border-b border-black tracking-widest">{data.fatherKtp}</span></div>
-            <div className="flex items-start"><span className="w-24 md:w-36 font-medium">Alamat</span><span className="mr-1 md:mr-2">:</span><span className="flex-1 border-b border-black min-h-[2.5rem] md:min-h-[3.5rem] leading-relaxed italic">{data.address}</span></div>
+          <div className="mt-6 md:mt-8 space-y-1 md:space-y-2 relative z-10 text-sm md:text-lg">
+            <p className="text-red-600 mb-2">Dari orang Tua</p>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Nama Ibu</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">No. KTP</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Pekerjaan</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Nama Ayah</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">No. KTP</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Pekerjaan</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
+            <div className="flex items-baseline"><span className="w-24 md:w-36 text-red-600">Alamat</span><span className="mr-2 md:mr-4">:</span><span className="flex-1 border-b border-black h-6"></span></div>
           </div>
 
-          {/* Footer / Signatures (Web Preview) */}
-          <div className="mt-auto grid grid-cols-2 pt-10 md:pt-16 relative z-10 text-xs md:text-base leading-tight">
-            <div className="flex flex-col items-center">
-              <div className="text-left w-full max-w-[200px] md:max-w-[300px]">
-                <p>Mengetahui,</p>
-                <p>Kepala UPT Puskesmas Cipanas</p>
-                <div className="h-20 md:h-24"></div>
-                <p className="underline decoration-1 underline-offset-4">dr. Arie Andaryani</p>
-                <p className="text-[10px] md:text-sm">NIP. 198301252014122001</p>
-              </div>
+          {/* FOOTER SIGNATURES - IDENTICAL TO WORD IMAGE */}
+          <div className="mt-auto pt-10 md:pt-16 grid grid-cols-2 gap-4 relative z-10 text-[11px] md:text-[15px] leading-tight">
+            {/* LEFT SIDE: MENGETAHUI */}
+            <div className="flex flex-col pl-4 md:pl-8">
+              <p className="text-red-600">Mengetahui,</p>
+              <p className="text-red-600 font-bold uppercase">Kepala UPT Puskesmas Cipanas</p>
+              <div className="h-20 md:h-24"></div>
+              <p className="font-bold underline decoration-1 underline-offset-4">dr. Arie Andaryani</p>
+              <p>NIP. 198301252014122001</p>
             </div>
             
-            <div className="flex flex-col items-center">
-              <div className="text-left w-full max-w-[200px] md:max-w-[300px]">
-                <p>Garut, {data.signingDate || '...................'}</p>
-                <p>Penolong</p>
-                <div className="h-20 md:h-24"></div>
-                <p className="min-h-[1em] uppercase">
-                  {data.assistantName || '...................................................'}
-                </p>
-                <p className="text-[10px] md:text-sm">NIP. {data.assistantNip || '...................'}</p>
-              </div>
+            {/* RIGHT SIDE: PENOLONG */}
+            <div className="flex flex-col pl-4 md:pl-12">
+              <p className="text-red-600">Garut, {renderValue(data.signingDate, '................................')}</p>
+              <p className="text-red-600 font-bold uppercase">Penolong</p>
+              <div className="h-20 md:h-24"></div>
+              <p className="font-bold underline decoration-1 underline-offset-4 min-h-[1.2em]">
+                {data.assistantName || '...................................................'}
+              </p>
+              <p>NIP. {data.assistantNip || '........................................'}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Actual Print Version (A4 Precision) - DISESUAIKAN DENGAN GAMBAR */}
+      {/* Actual Print Version (A4 Precision) */}
       <div className="hidden print:flex flex-col">
           <div className="print-page certificate-bg p-12 relative flex flex-col min-h-[297mm] text-gray-800 border-[1px] border-black/10">
              <FootprintWatermark />
@@ -227,53 +238,49 @@ const CertificatePreview: React.FC<PreviewProps> = ({ data }) => {
                 <div className="flex items-baseline"><span className="w-48 font-medium">Jenis Kelamin</span><span className="mr-4">:</span><span className="flex-1"><b>{data.gender}</b></span></div>
                 <div className="flex items-baseline"><span className="w-48 font-medium">Jenis Kelahiran</span><span className="mr-4">:</span><span className="flex-1"><b>{data.birthType}</b></span></div>
                 <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-48 font-medium">Anak Ke-</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.birthOrder}</b></span></div><div className="flex items-baseline"><span className="w-48 font-medium">Usia Gestasi</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.gestationAge}</b></span></div></div>
-                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-48 font-medium">Berat Lahir</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.weight}</b></span> gr</div><div className="flex items-baseline"><span className="w-48 font-medium">Lingkar Kepala</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.headCircumference}</b></span> cm</div></div>
+                <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-48 font-medium">Berat Lahir</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.weight}</b></span> gram</div><div className="flex items-baseline"><span className="w-48 font-medium">Lingkar Kepala</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.headCircumference}</b></span> cm</div></div>
                 <div className="grid grid-cols-2"><div className="flex items-baseline"><span className="w-48 font-medium">Panjang Badan</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.length}</b></span> cm</div><div className="flex items-baseline"><span className="w-48 font-medium">Lingkar dada</span><span className="mr-4">:</span><span className="border-b border-black min-w-[80px]"><b>{data.chestCircumference}</b></span> cm</div></div>
              </div>
 
              <div className="mt-12 text-center relative z-10 italic">
                <p>di <span className="font-bold not-italic">UPT PUSKESMAS CIPANAS</span></p>
-               <p>Alamat: <span className="font-bold not-italic">Jalan Cipanas No. 36 Desa Rancabango</span></p>
-               <p className="font-bold not-italic">Kec. Tarogong Kaler Kab. Garut</p>
+               <p>Alamat: <span className="font-bold not-italic underline">Jalan Cipanas No. 36 Desa Rancabango</span></p>
+               <p className="font-bold not-italic underline">Kec. Tarogong Kaler Kab. Garut</p>
+               <p className="mt-4">Diberi nama:</p>
              </div>
 
-             <div className="mt-8 text-center relative z-10">
-               <p className="mb-2 text-lg">Diberi nama:</p>
+             <div className="mt-4 text-center relative z-10">
                <div className="border-[3px] border-black p-6 bg-white/20 mx-auto min-h-[80px] flex items-center justify-center font-bold text-3xl uppercase tracking-widest">
                  {data.babyName}
                </div>
              </div>
 
              <div className="mt-10 space-y-3 relative z-10 text-lg">
-                <p className="font-bold underline underline-offset-4 mb-4 uppercase">Dari orang Tua</p>
-                <div className="flex items-baseline"><span className="w-44 font-medium">Nama Ibu</span><span className="mr-2">:</span><span className="flex-1 border-b border-black uppercase font-bold">{data.motherName}</span></div>
-                <div className="flex items-baseline"><span className="w-44 font-medium">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black tracking-widest">{data.motherKtp}</span></div>
-                <div className="flex items-baseline mt-4"><span className="w-44 font-medium">Nama Ayah</span><span className="mr-2">:</span><span className="flex-1 border-b border-black uppercase font-bold">{data.fatherName}</span></div>
-                <div className="flex items-baseline"><span className="w-44 font-medium">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black tracking-widest">{data.fatherKtp}</span></div>
-                <div className="flex items-start"><span className="w-44 font-medium">Alamat</span><span className="mr-2">:</span><span className="flex-1 border-b border-black min-h-[3rem] italic leading-relaxed">{data.address}</span></div>
+                <p className="mb-4">Dari orang Tua</p>
+                <div className="flex items-baseline"><span className="w-44">Nama Ibu</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
+                <div className="flex items-baseline"><span className="w-44">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
+                <div className="flex items-baseline mt-4"><span className="w-44">Nama Ayah</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
+                <div className="flex items-baseline"><span className="w-44">No. KTP</span><span className="mr-2">:</span><span className="flex-1 border-b border-black h-8"></span></div>
+                <div className="flex items-start"><span className="w-44">Alamat</span><span className="mr-2">:</span><span className="flex-1 border-b border-black min-h-[3rem] h-12"></span></div>
              </div>
 
-             {/* TANDA TANGAN VERSI CETAK - IDENTIK DENGAN GAMBAR WORD */}
-             <div className="mt-auto grid grid-cols-2 pt-12 relative z-10 text-xl leading-snug">
-               <div className="flex flex-col items-center">
-                 <div className="text-left w-full max-w-[320px]">
-                   <p>Mengetahui,</p>
-                   <p>Kepala UPT Puskesmas Cipanas</p>
-                   <div className="h-28"></div>
-                   <p className="underline decoration-1 underline-offset-8">dr. Arie Andaryani</p>
-                   <p>NIP. 198301252014122001</p>
-                 </div>
+             {/* Print Signatures - High Fidelity */}
+             <div className="mt-auto grid grid-cols-2 pt-16 relative z-10 text-xl leading-snug">
+               <div className="flex flex-col pl-12">
+                 <p>Mengetahui,</p>
+                 <p className="font-bold uppercase">Kepala UPT Puskesmas Cipanas</p>
+                 <div className="h-28"></div>
+                 <p className="font-bold underline decoration-1 underline-offset-8">dr. Arie Andaryani</p>
+                 <p>NIP. 198301252014122001</p>
                </div>
-               <div className="flex flex-col items-center">
-                 <div className="text-left w-full max-w-[320px]">
-                   <p>Garut, {data.signingDate || '...................'}</p>
-                   <p>Penolong</p>
-                   <div className="h-28"></div>
-                   <p className="min-h-[1.2em] uppercase">
-                     {data.assistantName ? data.assistantName : '...................................................'}
-                   </p>
-                   <p>NIP. {data.assistantNip || '...................'}</p>
-                 </div>
+               <div className="flex flex-col pl-12">
+                 <p>Garut, {renderValue(data.signingDate, '................................')}</p>
+                 <p className="font-bold uppercase">Penolong</p>
+                 <div className="h-28"></div>
+                 <p className="font-bold underline decoration-1 underline-offset-8 min-h-[1.2em]">
+                   {data.assistantName || '...................................................'}
+                 </p>
+                 <p>NIP. {data.assistantNip || '........................................'}</p>
                </div>
              </div>
           </div>
